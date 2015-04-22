@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <assert.h>
 #include "HHArray.h"
 
 #define CASTREF(Type, x) (*(Type *)x)
@@ -77,9 +78,12 @@ void test_pointer_print(HHArray array) {
 }
 
 void test_append(HHArray array) {
+    printsep("Testing Append");
     for (size_t i = 0; i < 100; i++) {
         hharray_append(array, (void *)(long)(rand() % 100));
     }
+    hharray_print_f(array, print);
+    assert(hharray_size(array) == 100);
 }
 
 int main() {

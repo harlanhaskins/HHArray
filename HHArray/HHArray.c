@@ -23,7 +23,10 @@ size_t DEFAULT_CAPACITY = 10;
 double RESIZE_FACTOR = 1.5;
 double LOAD_THRESHOLD = 0.75;
 
-void assert_index(size_t highest, size_t index) {
+/**
+ * Asserts that 'index' is less than 'highest', and otherwise causes an error and exits.
+ */
+static void assert_index(size_t highest, size_t index) {
     if (index > highest) {
         fprintf(stderr, "Array index %zu higher than highest index %zu.", index, highest);
         exit(EXIT_FAILURE);
@@ -56,7 +59,10 @@ void hharray_destroy(HHArray array) {
 
 #pragma mark - Printing
 
-void _print_ptr(void *ptr) {
+/**
+ * Prints a (void *) with %p.
+ */
+static void _print_ptr(void *ptr) {
     printf("<%p>", ptr);
 }
 
@@ -75,6 +81,9 @@ void hharray_print(HHArray array) {
 
 #pragma mark - Internal Resizing
 
+/**
+ * Determines whether shrinking the HHArray will keep it within the LOAD_THRESHOLD.
+ */
 static int hharray_should_shrink(HHArray array) {
     size_t capacity_after_shrink = array->capacity / RESIZE_FACTOR;
     double load_after_shrink = (double)array->size / (double)capacity_after_shrink;
@@ -82,16 +91,25 @@ static int hharray_should_shrink(HHArray array) {
     return should_shrink;
 }
 
+/**
+ * Shrinks an HHArray by RESIZE_FACTOR.
+ */
 static void hharray_shrink(HHArray array) {
     size_t new_capacity = array->capacity / RESIZE_FACTOR;
     array->values = hhrealloc(array->values, new_capacity * sizeof(void *));
     array->capacity = new_capacity;
 }
 
+/**
+ * Determines whether the HHArray is past the LOAD_THRESHOLD.
+ */
 static int hharray_should_grow(HHArray array) {
     return ((double)array->size / (double)array->capacity) > LOAD_THRESHOLD;
 }
 
+/**
+ * Grows an HHArray by RESIZE_FACTOR.
+ */
 static void hharray_grow(HHArray array) {
     size_t new_capacity = array->capacity * RESIZE_FACTOR;
     array->values = hhrealloc(array->values, new_capacity * sizeof(void *));
