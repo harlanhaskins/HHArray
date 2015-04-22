@@ -12,7 +12,7 @@
 #include "HHArray.h"
 
 #define CASTREF(Type, x) (*(Type *)x)
-#define printsep(s) puts("\n\n===== "s" =====\n\n")
+#define printsep(s) fputs("\n\n===== "s" =====\n\n", stdout)
 
 void print(void *ptr) {
     printf("%ld", (long)ptr);
