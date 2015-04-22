@@ -38,7 +38,7 @@ HHArray hharray_create();
 void hharray_destroy(HHArray array);
 
 /** 
- * A generic map function for entries of the hash table.
+ * A generic map function for entries of the array.
  * Creates a new array containing the result of applying
  * `transform` to all elements in the provided array.
  * @param array The array whose elements are to be transformed.
@@ -50,7 +50,28 @@ void hharray_destroy(HHArray array);
  */
 HHArray hharray_map(HHArray array, void *(*transform)(void *));
 
-HHArray hharray_filter(HHArray array, int (*include)(void *)) ;
+/**
+ * A generic filter function for entries of the array.
+ * Creates a new array containing the only the elements of `array`
+ * that returned non-zero from the provided `include` function.
+ * @param array The array whose elements are to be filtered.
+ * @param include A function that decides whether or not to
+ *                include a (void *) in the new array.
+ * @return A new HHArray containing only the values from the first
+           array that returned
+ */
+HHArray hharray_filter(HHArray array, int (*include)(void *));
+
+/**
+ * A generic reduce function for entries of the array.
+ * Continually applies `combine` to sequential values in the
+ * array, 'reducing' it to one value.
+ * @param array The array whose elements are to be transformed.
+ * @param initial An initial value, to start the combination.
+ * @param combine A function to combine two `(void *)`s into one.
+ * @return A new (void *) containing the final combined value.
+ */
+void *hharray_reduce(HHArray array, void *initial, void *(*combine)(void *, void *));
 
 /**
  * Returns all the values contained in the array.

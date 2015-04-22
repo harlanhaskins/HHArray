@@ -26,6 +26,10 @@ void *double_ptr(void *a) {
     return (void *)((long)a * 2);
 }
 
+void *add_long(void *a, void *b) {
+    return (void *)((long)a + (long)b);
+}
+
 int is_even(void *a) {
     return (long)a % 2 == 0;
 }
@@ -61,6 +65,12 @@ void test_filter(HHArray array) {
     hharray_destroy(evens);
 }
 
+void test_reduce(HHArray array) {
+    printsep("Testing Reduce");
+    long sum = (long)hharray_reduce(array, NULL, add_long);
+    printf("Sum: %ld", sum);
+}
+
 void test_pointer_print(HHArray array) {
     printsep("Testing Pointer Print");
     hharray_print(array);
@@ -82,6 +92,7 @@ int main() {
     test_shuffle(array);
     test_map(array);
     test_filter(array);
+    test_reduce(array);
 
     hharray_destroy(array);
     

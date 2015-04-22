@@ -217,6 +217,14 @@ HHArray hharray_filter(HHArray array, int (*include)(void *)) {
     return new;
 }
 
+void *hharray_reduce(HHArray array, void *initial, void *(*combine)(void *, void *)) {
+    void *current = initial;
+    for (size_t i = 0; i < array->size; i++) {
+        current = combine(current, array->values[i]);
+    }
+    return current;
+}
+
 void **hharray_values(HHArray array) {
     void **new = hhcalloc(array->size, sizeof(void *));
     for (size_t i = 0; i < array->size; i++) {
