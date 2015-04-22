@@ -34,3 +34,4 @@ void *hhrealloc(void *src, size_t size);
 void *hhmalloc(size_t size);
 
 #endif /* defined(__utilities__) */
+

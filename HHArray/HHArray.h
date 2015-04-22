@@ -165,3 +165,4 @@ int hharray_is_sorted(HHArray array, int (*comparison)(const void *a, const void
 void hharray_swap(HHArray array, size_t first_index, size_t second_index);
 
 #endif /* defined(__HHArray__HHArray__) */
+
