@@ -22,9 +22,11 @@ typedef struct HHArray_S {
 #include "HHArray.h"
 #undef _HHARRAY_DEFINED_
 
-size_t DEFAULT_CAPACITY = 10;
-double RESIZE_FACTOR = 1.5;
-double LOAD_THRESHOLD = 0.75;
+const size_t DEFAULT_CAPACITY = 10;
+const size_t HHArrayNotFound = SIZE_MAX;
+const double RESIZE_FACTOR = 1.5;
+const double LOAD_THRESHOLD = 0.75;
+
 
 /**
  * Asserts that 'index' is less than 'highest', and otherwise causes an error and exits.
@@ -247,6 +249,37 @@ int hharray_is_sorted(HHArray array, int (*comparison)(const void *a, const void
         }
     }
     return 1;
+}
+
+int equals(void *a, void *b) { return a == b; }
+
+
+void *hharray_remove_f(HHArray array, void *element, int (*comparison)(void *, void *)) {
+    size_t index = hharray_find_f(array, element, comparison);
+    if (index == HHArrayNotFound) {
+        fprintf(stderr, "Element <%p> not found in array <%p>", element, array);
+        hharray_destroy(array);
+        exit(EXIT_FAILURE);
+    }
+    return hharray_remove_index(array, index);
+}
+
+void *hharray_remove(HHArray array, void *element) {
+    return hharray_remove_f(array, element, NULL);
+}
+
+size_t hharray_find_f(HHArray array, void *element, int (*comparison)(void *, void *)) {
+    if (array->size == 0) return HHArrayNotFound;
+    for (size_t i = 0; i < array->size; i++) {
+        if ((comparison ? comparison : equals)(element, array->values[i])) {
+            return i;
+        }
+    }
+    return HHArrayNotFound;
+}
+
+size_t hharray_find(HHArray array, void *element) {
+    return hharray_find_f(array, element, equals);
 }
 
 #pragma mark - Functional Abstractions

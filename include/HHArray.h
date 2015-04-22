@@ -15,6 +15,8 @@
 typedef struct { } *HHArray;
 #endif
 
+extern const size_t HHArrayNotFound;
+
 /**
  * Initializes an HHArray with a given capacity.
  * If you plan on using the array to store many values,
@@ -31,6 +33,14 @@ HHArray hharray_create();
 HHArray hharray_copy(HHArray array);
 
 void hharray_insert_list(HHArray dest, HHArray source, size_t index);
+
+size_t hharray_find(HHArray array, void *element);
+
+size_t hharray_find_f(HHArray array, void *element, int (*comparison)(void *, void *));
+
+void *hharray_remove(HHArray array, void *element);
+
+void *hharray_remove_f(HHArray array, void *element, int (*comparison)(void *, void *));
 
 /**
  * Frees an HHArray.

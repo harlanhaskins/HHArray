@@ -130,6 +130,20 @@ void test_remove() {
     printtest("Remove");
     HHArray array = hharray_create();
     fill_array(array, 10);
+    void *value_to_find = (void *)4;
+    hharray_insert_index(array, value_to_find, 4);
+    hharray_print_f(array, print);
+    putchar('\n');
+    hharray_remove(array, value_to_find);
+    hharray_print_f(array, print);
+    putchar('\n');
+    hharray_destroy(array);
+}
+
+void test_remove_index() {
+    printtest("Remove Index");
+    HHArray array = hharray_create();
+    fill_array(array, 10);
     hharray_print_f(array, print);
     putchar('\n');
     hharray_remove_index(array, 1);
@@ -230,6 +244,7 @@ int main() {
     test_insert();
     test_insert_list();
     test_remove();
+    test_remove_index();
     test_copy();
     test_append_list();
     test_stress();
