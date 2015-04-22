@@ -66,7 +66,7 @@ void hharray_print_f(HHArray array, void (*print)(void *)) {
         (print ?: _print_ptr)(array->values[i]);
         if (i < array->size - 1) fputs(", ", stdout);
     }
-    puts("]");
+    putchar(']');
 }
 
 void hharray_print(HHArray array) {
