@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <assert.h>
-#include "HHArray.h"
+#include <HHArray.h>
 
 #define CASTREF(Type, x) (*(Type *)x)
 #define printsep(s) fputs("\n\n===== "s" =====\n\n", stdout)
