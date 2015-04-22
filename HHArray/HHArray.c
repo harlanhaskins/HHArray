@@ -23,6 +23,15 @@ size_t DEFAULT_CAPACITY = 10;
 double RESIZE_FACTOR = 1.5;
 double LOAD_THRESHOLD = 0.75;
 
+void assert_index(size_t highest, size_t index) {
+    if (index > highest) {
+        fprintf(stderr, "Array index %zu higher than highest index %zu.", index, highest);
+        exit(EXIT_FAILURE);
+    }
+}
+
+#pragma mark - Creation and Destruction
+
 HHArray hharray_create_capacity(size_t capacity) {
     if (capacity == 0) {
         fputs("Cannot initialize an hharray with capacity 0.", stderr);
@@ -35,12 +44,6 @@ HHArray hharray_create_capacity(size_t capacity) {
     return array;
 }
 
-void assert_index(size_t highest, size_t index) {
-    if (index > highest) {
-        fprintf(stderr, "Array index %zu higher than highest index %zu.", index, highest);
-        exit(EXIT_FAILURE);
-    }
-}
 
 HHArray hharray_create() {
     return hharray_create_capacity(DEFAULT_CAPACITY);
@@ -51,16 +54,7 @@ void hharray_destroy(HHArray array) {
     free(array);
 }
 
-static int hharray_should_grow(HHArray array) {
-    return ((double)array->size / (double)array->capacity) > LOAD_THRESHOLD;
-}
-
-static void hharray_grow(HHArray array) {
-    size_t new_capacity = array->capacity * RESIZE_FACTOR;
-    array->values = hhrealloc(array->values, new_capacity * sizeof(void *));
-    printf("Growing from %zu to %zu\n", array->capacity, new_capacity);
-    array->capacity = new_capacity;
-}
+#pragma mark - Printing
 
 void _print_ptr(void *ptr) {
     printf("<%p>", ptr);
@@ -79,6 +73,8 @@ void hharray_print(HHArray array) {
     hharray_print_f(array, NULL);
 }
 
+#pragma mark - Internal Resizing
+
 static int hharray_should_shrink(HHArray array) {
     size_t capacity_after_shrink = array->capacity / RESIZE_FACTOR;
     double load_after_shrink = (double)array->size / (double)capacity_after_shrink;
@@ -93,40 +89,22 @@ static void hharray_shrink(HHArray array) {
     array->capacity = new_capacity;
 }
 
+static int hharray_should_grow(HHArray array) {
+    return ((double)array->size / (double)array->capacity) > LOAD_THRESHOLD;
+}
+
+static void hharray_grow(HHArray array) {
+    size_t new_capacity = array->capacity * RESIZE_FACTOR;
+    array->values = hhrealloc(array->values, new_capacity * sizeof(void *));
+    printf("Growing from %zu to %zu\n", array->capacity, new_capacity);
+    array->capacity = new_capacity;
+}
+
 size_t hharray_size(HHArray array) {
     return array->size;
 }
 
-void hharray_swap(HHArray array, size_t first_index, size_t second_index) {
-    void *first = array->values[first_index];
-    void *second = array->values[second_index];
-    array->values[first_index] = second;
-    array->values[second_index] = first;
-}
-
-int _random_int_in_range(size_t min, size_t max) {
-    double scaled = (double)rand()/ RAND_MAX;
-    int random = (max - min + 1) * scaled + min;
-    return random;
-}
-
-void hharray_shuffle(HHArray array) {
-    int swap_index = 0;
-    
-    for (size_t i = array->size - 1; i > 0; --i) {
-        if (array->size == 2) {
-            hharray_swap(array, 0, 1);
-            return;
-        }
-        
-        swap_index = _random_int_in_range(0, i);
-        hharray_swap(array, swap_index, (int)i);
-    }
-}
-
-void hharray_sort(HHArray array, int (*comparison)(const void *a, const void *b)) {
-    qsort(array->values, array->size, sizeof(void *), comparison);
-}
+#pragma mark - Insertion and Removal
 
 void hharray_append(HHArray array, void *value) {
     if (hharray_should_grow(array)) {
@@ -166,13 +144,17 @@ void *hharray_remove_index(HHArray array, size_t index) {
     return value;
 }
 
-void *hharray_pop(HHArray array) {
-    return hharray_remove_index(array, 0);
-}
+#pragma mark - Stack Functions
 
 void hharray_push(HHArray array, void *value) {
     hharray_insert_index(array, value, 0);
 }
+
+void *hharray_pop(HHArray array) {
+    return hharray_remove_index(array, 0);
+}
+
+#pragma mark - Queue Functions
 
 void hharray_enqueue(HHArray array, void *value) {
     hharray_append(array, value);
@@ -180,4 +162,47 @@ void hharray_enqueue(HHArray array, void *value) {
 
 void *hharray_dequeue(HHArray array) {
     return hharray_pop(array);
+}
+
+#pragma mark - Utilities
+
+void hharray_swap(HHArray array, size_t first_index, size_t second_index) {
+    void *first = array->values[first_index];
+    void *second = array->values[second_index];
+    array->values[first_index] = second;
+    array->values[second_index] = first;
+}
+
+void hharray_shuffle(HHArray array) {
+    for (size_t i = array->size - 1; i > 0; --i) {
+        if (array->size == 2) {
+            hharray_swap(array, 0, 1);
+            return;
+        }
+        size_t swap = rand() / (RAND_MAX / i + 1);
+        hharray_swap(array, swap, (int)i);
+    }
+}
+
+void hharray_sort(HHArray array, int (*comparison)(const void *a, const void *b)) {
+    qsort(array->values, array->size, sizeof(void *), comparison);
+}
+
+#pragma mark - Functional Abstractions
+
+/**
+ * Returns the provided pointer. Useful to apply to map when assuming no transformation.
+ */
+static void *id(void *a) { return a; }
+
+void **hharray_map(HHArray array, void *(*transform)(void *)) {
+    void **new = hhcalloc(array->size, sizeof(void *));
+    for (size_t i = 0; i < array->size; i++) {
+        new[i] = transform(array->values[i]);
+    }
+    return new;
+}
+
+void **hharray_values(HHArray array) {
+    return hharray_map(array, id);
 }

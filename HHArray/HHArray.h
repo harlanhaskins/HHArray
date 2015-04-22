@@ -38,6 +38,27 @@ HHArray hharray_create();
 void hharray_destroy(HHArray array);
 
 /**
+ * Copies all values contained within the array to a (void **).
+ * You must use `hharray_size()` to find the length of this list.
+ * @return a pointer to a shallow copy of the values within the array.
+ */
+void **hharray_values(HHArray array);
+
+/** 
+ * A generic map function for entries of the hash table.
+ * Applies a `transform` function to each non-NULL item
+ * in the table.
+ * @param t The table whose elements are to be transformed.
+ * @param transform A transform of type (void *) -> (void *)
+ *                  This transform will be applied to all
+ *                  elements of the array in order.
+ * @return A (void **) containing the result of applying `transform`
+ *         to each entry in the array.
+ * @note You must free the returned values list from this function.
+ */
+void **hharray_map(HHArray array, void *(*transform)(void *));
+
+/**
  * @return the number of items currently stored in the array.
  */
 size_t hharray_size(HHArray array);
@@ -125,6 +146,7 @@ void hharray_sort(HHArray array, int (*comparison)(const void *a, const void *b)
 
 /**
  * Shuffles the array using a Fischer-Yates shuffle.
+ * @pre assumes you have seeded the random number generator with `srand()`.
  */
 void hharray_shuffle(HHArray array);
 
