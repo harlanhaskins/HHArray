@@ -1,6 +1,5 @@
 CC=clang
-CFLAGS= -Wall -Wno-gnu-empty-struct -Wextra -Werror -pedantic -O2 -pipe -march=native
-DEBUG_CFLAGS= -Wall -Wextra -Werror -pedantic -O0 -g -pipe -DDEBUG_MSG_ENABLE
+CFLAGS= -Wall -Wno-gnu-empty-struct -Wextra -Werror -pedantic -Ofast -ggdb -pipe -march=native
 INCLUDE= -I../include
 LFLAGS = -L../ -lhharray
 

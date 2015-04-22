@@ -86,6 +86,22 @@ void test_append(HHArray array) {
     assert(hharray_size(array) == 100);
 }
 
+void test_stress() {
+    printsep("Testing Stress");
+    HHArray array = hharray_create();
+    for (size_t i = 0; i < 100000; i++) {
+        hharray_append(array, (void *)(long)(rand() % 100));
+    }
+    while (hharray_size(array) > 70000) {
+        hharray_remove_index(array, (size_t)(rand() % hharray_size(array)));
+    }
+    while (hharray_size(array) > 100) {
+        hharray_pop(array);
+    }
+    hharray_print_f(array, print);
+    hharray_destroy(array);
+}
+
 int main() {
     srand((unsigned int)time(0));
     HHArray array = hharray_create();
@@ -97,6 +113,7 @@ int main() {
     test_map(array);
     test_filter(array);
     test_reduce(array);
+    test_stress();
 
     hharray_destroy(array);
     

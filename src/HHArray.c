@@ -153,10 +153,11 @@ void *hharray_remove_index(HHArray array, size_t index) {
     }
     void *value = hharray_get(array, index);
     array->values[index] = NULL;
+    array->size--;
+    if (index == array->size - 1) return value;
     for (size_t i = index + 1; i < array->size; i++) {
         array->values[i - 1] = array->values[i];
     }
-    array->size--;
     return value;
 }
 
