@@ -188,6 +188,16 @@ void hharray_sort(HHArray array, int (*comparison)(const void *a, const void *b)
     qsort(array->values, array->size, sizeof(void *), comparison);
 }
 
+int hharray_is_sorted(HHArray array, int (*comparison)(const void *a, const void *b)) {
+    if (array->size <= 1) return 1;
+    for (size_t i = 0; i < (array->size - 1); i++) {
+        if (comparison(&array->values[i], &array->values[i + 1]) > 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 #pragma mark - Functional Abstractions
 
 HHArray hharray_map(HHArray array, void *(*transform)(void *)) {
@@ -195,6 +205,16 @@ HHArray hharray_map(HHArray array, void *(*transform)(void *)) {
     for (size_t i = 0; i < array->size; i++) {
         void *new_value = transform(array->values[i]);
         hharray_append(new, new_value);
+    }
+    return new;
+}
+
+HHArray hharray_filter(HHArray array, int (*include)(void *)) {
+    HHArray new = hharray_create_capacity(array->size);
+    for (size_t i = 0; i < array->size; i++) {
+        if (include(array->values[i])) {
+            hharray_append(new, array->values[i]);
+        }
     }
     return new;
 }

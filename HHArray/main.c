@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "HHArray.h"
 
 #define CASTREF(Type, x) (*(Type *)x)
@@ -16,15 +17,20 @@ void print(void *ptr) {
     printf("%ld", (long)ptr);
 }
 
-int cmpfunc (const void *a, const void *b) {
-    return (long)a > (long)b;
+int cmpfunc(const void *a, const void *b) {
+    return (int)(CASTREF(long, a) - CASTREF(long, b));
 }
 
 void *double_ptr(void *a) {
     return (void *)((long)a * 2);
 }
 
+int is_even(void *a) {
+    return (long)a % 2 == 0;
+}
+
 int main(int argc, const char * argv[]) {
+    srand((unsigned int)time(0));
     HHArray array = hharray_create();
     for (size_t i = 0; i < 10; i++) {
         hharray_push(array, (void *)(long)(rand() % 100));
@@ -36,7 +42,13 @@ int main(int argc, const char * argv[]) {
     HHArray doubled = hharray_map(array, double_ptr);
     fputs("Doubled: ", stdout);
     hharray_print_f(doubled, print);
+    printf("Sorted? %s\n", hharray_is_sorted(array, cmpfunc) ? "yes" : "no");
     hharray_destroy(doubled);
+    
+    HHArray evens = hharray_filter(array, is_even);
+    fputs("Even numbers: ", stdout);
+    hharray_print_f(evens, print);
+    hharray_destroy(evens);
     hharray_shuffle(array);
     hharray_print_f(array, print);
     hharray_shuffle(array);

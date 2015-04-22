@@ -50,6 +50,8 @@ void hharray_destroy(HHArray array);
  */
 HHArray hharray_map(HHArray array, void *(*transform)(void *));
 
+HHArray hharray_filter(HHArray array, int (*include)(void *)) ;
+
 /**
  * Returns all the values contained in the array.
  * @param array The array whose elements are to be transformed.
@@ -155,7 +157,7 @@ void hharray_shuffle(HHArray array);
  * @return `true` if the array is sorted as per the comparison function.
  * @note Not functional, so hidden.
  */
-// int hharray_is_sorted(HHArray array, int (*comparison)(const void *a, const void *b));
+int hharray_is_sorted(HHArray array, int (*comparison)(const void *a, const void *b));
 
 /**
  * Swaps the values at the provided indices.
