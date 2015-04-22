@@ -63,7 +63,7 @@ static void hharray_grow(HHArray array) {
 }
 
 void _print_ptr(void *ptr) {
-    printf("<%8p>", ptr);
+    printf("<%p>", ptr);
 }
 
 void hharray_print_f(HHArray array, void (*print)(void *)) {

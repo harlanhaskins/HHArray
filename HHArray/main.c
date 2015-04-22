@@ -26,6 +26,7 @@ int main(int argc, const char * argv[]) {
         hharray_push(array, (void *)(long)(rand() % 100));
     }
     hharray_print_f(array, print);
+    hharray_print(array);
     hharray_sort(array, cmpfunc);
     hharray_print_f(array, print);
     hharray_shuffle(array);
