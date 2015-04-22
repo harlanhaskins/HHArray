@@ -222,7 +222,8 @@ void test_stress() {
     HHArray array = hharray_create();
     fill_array(array, 100000);
     while (hharray_size(array) > 70000) {
-        hharray_remove_index(array, (size_t)(rand() % hharray_size(array)));
+        size_t index = (size_t)(rand() % hharray_size(array));
+        hharray_remove_index(array, index);
     }
     while (hharray_size(array) > 100) {
         hharray_pop(array);
