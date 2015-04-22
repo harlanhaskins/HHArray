@@ -191,11 +191,11 @@ void hharray_swap(HHArray array, size_t first_index, size_t second_index) {
 }
 
 void hharray_shuffle(HHArray array) {
+    if (array->size == 2) {
+        hharray_swap(array, 0, 1);
+        return;
+    }
     for (size_t i = array->size - 1; i > 0; --i) {
-        if (array->size == 2) {
-            hharray_swap(array, 0, 1);
-            return;
-        }
         size_t swap = rand() / (RAND_MAX / i + 1);
         hharray_swap(array, swap, (int)i);
     }
