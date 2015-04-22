@@ -10,5 +10,5 @@ except without reference counting.
 It's got some fun things, like `hharray_sort`, `hharray_shuffle`, and
 built-ins for treating it like a stack and queue.
 
-It's also got functional abstractions -- `hharray_map` and `hharray_filter`
+It's also got functional abstractions, `hharray_map` `hharray_reduce`, and `hharray_filter`
 that work on HHArrays.
