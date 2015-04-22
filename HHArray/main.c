@@ -20,6 +20,10 @@ int cmpfunc (const void *a, const void *b) {
     return (long)a > (long)b;
 }
 
+void *double_ptr(void *a) {
+    return (void *)((long)a * 2);
+}
+
 int main(int argc, const char * argv[]) {
     HHArray array = hharray_create();
     for (size_t i = 0; i < 10; i++) {
@@ -29,6 +33,10 @@ int main(int argc, const char * argv[]) {
     hharray_print(array);
     hharray_sort(array, cmpfunc);
     hharray_print_f(array, print);
+    HHArray doubled = hharray_map(array, double_ptr);
+    fputs("Doubled: ", stdout);
+    hharray_print_f(doubled, print);
+    hharray_destroy(doubled);
     hharray_shuffle(array);
     hharray_print_f(array, print);
     hharray_shuffle(array);

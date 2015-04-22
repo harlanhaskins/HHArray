@@ -37,26 +37,27 @@ HHArray hharray_create();
  */
 void hharray_destroy(HHArray array);
 
-/**
- * Copies all values contained within the array to a (void **).
- * You must use `hharray_size()` to find the length of this list.
- * @return a pointer to a shallow copy of the values within the array.
- */
-void **hharray_values(HHArray array);
-
 /** 
  * A generic map function for entries of the hash table.
- * Applies a `transform` function to each non-NULL item
- * in the table.
- * @param t The table whose elements are to be transformed.
+ * Creates a new array containing the result of applying
+ * `transform` to all elements in the provided array.
+ * @param array The array whose elements are to be transformed.
  * @param transform A transform of type (void *) -> (void *)
  *                  This transform will be applied to all
  *                  elements of the array in order.
- * @return A (void **) containing the result of applying `transform`
- *         to each entry in the array.
- * @note You must free the returned values list from this function.
+ * @return A new HHArray containing the result of applying `transform`
+ *         to each value in the provided array.
  */
-void **hharray_map(HHArray array, void *(*transform)(void *));
+HHArray hharray_map(HHArray array, void *(*transform)(void *));
+
+/**
+ * Returns all the values contained in the array.
+ * @param array The array whose elements are to be transformed.
+ * @return A (void **) containing a shallow copy of the values in the array.
+ * @note You must free the returned values list from this function.
+ * @note You must use `hharray_size()` to find the length of this list.
+ */
+void **hharray_values(HHArray array);
 
 /**
  * @return the number of items currently stored in the array.

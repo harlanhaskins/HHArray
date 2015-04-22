@@ -190,19 +190,19 @@ void hharray_sort(HHArray array, int (*comparison)(const void *a, const void *b)
 
 #pragma mark - Functional Abstractions
 
-/**
- * Returns the provided pointer. Useful to apply to map when assuming no transformation.
- */
-static void *id(void *a) { return a; }
-
-void **hharray_map(HHArray array, void *(*transform)(void *)) {
-    void **new = hhcalloc(array->size, sizeof(void *));
+HHArray hharray_map(HHArray array, void *(*transform)(void *)) {
+    HHArray new = hharray_create_capacity(array->size);
     for (size_t i = 0; i < array->size; i++) {
-        new[i] = transform(array->values[i]);
+        void *new_value = transform(array->values[i]);
+        hharray_append(new, new_value);
     }
     return new;
 }
 
 void **hharray_values(HHArray array) {
-    return hharray_map(array, id);
+    void **new = hhcalloc(array->size, sizeof(void *));
+    for (size_t i = 0; i < array->size; i++) {
+        new[i] = array->values[i];
+    }
+    return new;
 }
