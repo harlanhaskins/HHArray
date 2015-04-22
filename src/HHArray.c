@@ -7,7 +7,10 @@
 //
 
 #include <stdlib.h>
+#include <string.h>
 #include "utilities.h"
+
+#define ITEM_SIZE sizeof(void *)
 
 typedef struct HHArray_S {
     size_t size;
@@ -44,13 +47,20 @@ HHArray hharray_create_capacity(size_t capacity) {
     HHArray array = hhmalloc(sizeof(struct HHArray_S));
     array->capacity = capacity;
     array->size = 0;
-    array->values = hhcalloc(array->capacity, sizeof(void *));
+    array->values = hhcalloc(array->capacity, ITEM_SIZE);
     return array;
 }
 
 
 HHArray hharray_create() {
     return hharray_create_capacity(DEFAULT_CAPACITY);
+}
+
+HHArray hharray_copy(HHArray array) {
+    HHArray new = hharray_create_capacity(array->capacity);
+    new->size = array->size;
+    memcpy(new->values, array->values, array->size * ITEM_SIZE);
+    return new;
 }
 
 void hharray_destroy(HHArray array) {
@@ -97,7 +107,7 @@ static int hharray_should_shrink(HHArray array) {
  */
 static void hharray_shrink(HHArray array) {
     size_t new_capacity = array->capacity / RESIZE_FACTOR;
-    array->values = hhrealloc(array->values, new_capacity * sizeof(void *));
+    array->values = hhrealloc(array->values, new_capacity * ITEM_SIZE);
     array->capacity = new_capacity;
 }
 
@@ -108,13 +118,17 @@ static int hharray_should_grow(HHArray array) {
     return ((double)array->size / (double)array->capacity) > LOAD_THRESHOLD;
 }
 
+void hharray_ensure_capacity(HHArray array, size_t capacity) {
+    if (array->capacity >= capacity) return;
+    array->values = hhrealloc(array->values, capacity * ITEM_SIZE);
+    array->capacity = capacity;
+}
+
 /**
  * Grows an HHArray by RESIZE_FACTOR.
  */
 static void hharray_grow(HHArray array) {
-    size_t new_capacity = array->capacity * RESIZE_FACTOR;
-    array->values = hhrealloc(array->values, new_capacity * sizeof(void *));
-    array->capacity = new_capacity;
+    hharray_ensure_capacity(array, array->capacity * RESIZE_FACTOR);
 }
 
 size_t hharray_size(HHArray array) {
@@ -136,14 +150,32 @@ void *hharray_get(HHArray array, size_t index) {
     return array->values[index];
 }
 
+void hharray_insert_list(HHArray dest, HHArray source, size_t index) {
+    hharray_ensure_capacity(dest, dest->capacity + source->capacity);
+    void *old_value_dst = &dest->values[index + source->size];
+    void *input_index = &dest->values[index];
+    void *new_values = source->values;
+    memmove(old_value_dst, input_index, (source->size * ITEM_SIZE));
+    memcpy(input_index, new_values, (source->size * ITEM_SIZE));
+    dest->size += source->size;
+}
+
+void hharray_append_list(HHArray dest, HHArray source) {
+    hharray_ensure_capacity(dest, dest->capacity + source->capacity);
+    void *dst = &dest->values[dest->size];
+    void *src = source->values;
+    memcpy(dst, src, (source->size * ITEM_SIZE));
+    dest->size += source->size;
+}
+
 void hharray_insert_index(HHArray array, void *value, size_t index) {
     assert_index(array, array->size, index);
     if (hharray_should_grow(array)) {
         hharray_grow(array);
     }
-    for (size_t shift = array->size; shift > index; shift--) {
-        array->values[shift] = array->values[shift - 1];
-    }
+    void *dst = &array->values[index + 1];
+    void *src = &array->values[index];
+    memmove(dst, src, ((array->size - index) * ITEM_SIZE));
     array->values[index] = value;
     array->size++;
 }
@@ -154,11 +186,12 @@ void *hharray_remove_index(HHArray array, size_t index) {
     }
     void *value = hharray_get(array, index);
     array->values[index] = NULL;
+    int is_last = (index == array->size - 1);
     array->size--;
-    if (index == array->size - 1) return value;
-    for (size_t i = index + 1; i < array->size; i++) {
-        array->values[i - 1] = array->values[i];
-    }
+    if (is_last) return value;
+    void *dst = &array->values[index];
+    void *src = &array->values[index + 1];
+    memmove(dst, src, ((array->size - index) * ITEM_SIZE));
     return value;
 }
 
@@ -203,7 +236,7 @@ void hharray_shuffle(HHArray array) {
 }
 
 void hharray_sort(HHArray array, int (*comparison)(const void *a, const void *b)) {
-    qsort(array->values, array->size, sizeof(void *), comparison);
+    qsort(array->values, array->size, ITEM_SIZE, comparison);
 }
 
 int hharray_is_sorted(HHArray array, int (*comparison)(const void *a, const void *b)) {
@@ -234,6 +267,9 @@ HHArray hharray_filter(HHArray array, int (*include)(void *)) {
             hharray_append(new, array->values[i]);
         }
     }
+    if (hharray_should_shrink(new)) {
+        hharray_shrink(new);
+    }
     return new;
 }
 
@@ -246,7 +282,7 @@ void *hharray_reduce(HHArray array, void *initial, void *(*combine)(void *, void
 }
 
 void **hharray_values(HHArray array) {
-    void **new = hhcalloc(array->size, sizeof(void *));
+    void **new = hhcalloc(array->size, ITEM_SIZE);
     for (size_t i = 0; i < array->size; i++) {
         new[i] = array->values[i];
     }

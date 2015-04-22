@@ -28,6 +28,10 @@ HHArray hharray_create_capacity(size_t capacity);
  */
 HHArray hharray_create();
 
+HHArray hharray_copy(HHArray array);
+
+void hharray_insert_list(HHArray dest, HHArray source, size_t index);
+
 /**
  * Frees an HHArray.
  * @note This does not free any of the values contained
@@ -91,6 +95,8 @@ size_t hharray_size(HHArray array);
  * Appends the `value` at the end of the array's storage.
  */
 void hharray_append(HHArray array, void *value);
+
+void hharray_append_list(HHArray dest, HHArray source);
 
 /**
  * @return the value held at `index` in the array.
