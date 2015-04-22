@@ -12,6 +12,7 @@
 #include "HHArray.h"
 
 #define CASTREF(Type, x) (*(Type *)x)
+#define printsep(s) puts("\n\n===== "s" =====\n\n")
 
 void print(void *ptr) {
     printf("%ld", (long)ptr);
@@ -29,44 +30,63 @@ int is_even(void *a) {
     return (long)a % 2 == 0;
 }
 
-int main() {
-    srand((unsigned int)time(0));
-    HHArray array = hharray_create();
-    for (size_t i = 0; i < 100; i++) {
-        hharray_append(array, (void *)(long)(rand() % 100));
-    }
-    
-    printf("===== Testing Pointer Print =====\n\n");
-    hharray_print(array);
-    
-    printf("\n\n===== Testing Sorting =====\n\n");
-    
+void test_sort(HHArray array) {
+    printsep("Testing Sorting");
     hharray_print_f(array, print);
     printf("\n\nSorted? %s\n\n", hharray_is_sorted(array, cmpfunc) ? "yes" : "no");
     hharray_sort(array, cmpfunc);
     hharray_print_f(array, print);
     printf("\n\nSorted? %s", hharray_is_sorted(array, cmpfunc) ? "yes" : "no");
-    
-    printf("\n\n===== Testing Map =====\n\n");
-    
+}
+
+void test_shuffle(HHArray array) {
+    printsep("Testing Shuffle");
+    hharray_shuffle(array);
+    hharray_print_f(array, print);
+}
+
+void test_map(HHArray array) {
+    printsep("Testing Map");
     HHArray doubled = hharray_map(array, double_ptr);
     fputs("Doubled: ", stdout);
     hharray_print_f(doubled, print);
     hharray_destroy(doubled);
-    
-    printf("\n\n===== Testing Filter =====\n\n");
+}
+
+void test_filter(HHArray array) {
+    printsep("Testing Filter");
     HHArray evens = hharray_filter(array, is_even);
     fputs("Even numbers: ", stdout);
     hharray_print_f(evens, print);
     hharray_destroy(evens);
+}
+
+void test_pointer_print(HHArray array) {
+    printsep("Testing Pointer Print");
+    hharray_print(array);
+}
+
+void test_append(HHArray array) {
+    for (size_t i = 0; i < 100; i++) {
+        hharray_append(array, (void *)(long)(rand() % 100));
+    }
+}
+
+int main() {
+    srand((unsigned int)time(0));
+    HHArray array = hharray_create();
     
-    printf("\n\n===== Testing Shuffle =====\n\n");
-    hharray_shuffle(array);
-    hharray_print_f(array, print);
-    
+    test_append(array);
+    test_pointer_print(array);
+    test_sort(array);
+    test_shuffle(array);
+    test_map(array);
+    test_filter(array);
+
     hharray_destroy(array);
-    putchar('\n');
     
+    putchar('\n');
+
     return 0;
 }
 
