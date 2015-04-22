@@ -65,6 +65,7 @@ int main() {
     hharray_print_f(array, print);
     
     hharray_destroy(array);
+    putchar('\n');
     
     return 0;
 }
