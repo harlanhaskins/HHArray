@@ -29,7 +29,7 @@ int is_even(void *a) {
     return (long)a % 2 == 0;
 }
 
-int main(int argc, const char * argv[]) {
+int main() {
     srand((unsigned int)time(0));
     HHArray array = hharray_create();
     for (size_t i = 0; i < 100; i++) {

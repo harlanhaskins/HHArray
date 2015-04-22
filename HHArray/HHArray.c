@@ -63,7 +63,7 @@ void _print_ptr(void *ptr) {
 void hharray_print_f(HHArray array, void (*print)(void *)) {
     putchar('[');
     for (size_t i = 0; i < array->size; i++) {
-        (print ?: _print_ptr)(array->values[i]);
+        (print ? print : _print_ptr)(array->values[i]);
         if (i < array->size - 1) fputs(", ", stdout);
     }
     putchar(']');
