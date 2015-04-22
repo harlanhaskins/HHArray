@@ -26,9 +26,10 @@ double LOAD_THRESHOLD = 0.75;
 /**
  * Asserts that 'index' is less than 'highest', and otherwise causes an error and exits.
  */
-static void assert_index(size_t highest, size_t index) {
+static void assert_index(HHArray array, size_t highest, size_t index) {
     if (index > highest) {
         fprintf(stderr, "Array index %zu higher than highest index %zu.", index, highest);
+        hharray_destroy(array);
         exit(EXIT_FAILURE);
     }
 }
@@ -131,12 +132,12 @@ void hharray_append(HHArray array, void *value) {
 }
 
 void *hharray_get(HHArray array, size_t index) {
-    assert_index(array->size - 1, index);
+    assert_index(array, array->size - 1, index);
     return array->values[index];
 }
 
 void hharray_insert_index(HHArray array, void *value, size_t index) {
-    assert_index(array->size, index);
+    assert_index(array, array->size, index);
     if (hharray_should_grow(array)) {
         hharray_grow(array);
     }
