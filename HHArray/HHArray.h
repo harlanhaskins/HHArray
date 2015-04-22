@@ -89,6 +89,19 @@ void *hharray_pop(HHArray array);
 void hharray_push(HHArray array, void *value);
 
 /**
+ * Appends the `value` at the end of the array's storage.
+ */
+void hharray_enqueue(HHArray array, void *value);
+
+/**
+ * Removes the first value from the list.
+ * @note requires a complete reverse O(n) swap from the array's size,
+ *       in order to shift the values.
+ * @return the removed value.
+ */
+void *hharray_dequeue(HHArray array);
+
+/**
  * Prints the contents of the array using the specified print
  * function on each value.
  */

@@ -136,10 +136,6 @@ void hharray_append(HHArray array, void *value) {
     array->size++;
 }
 
-void hharray_push(HHArray array, void *value) {
-    hharray_insert_index(array, value, 0);
-}
-
 void *hharray_get(HHArray array, size_t index) {
     assert_index(array->size - 1, index);
     return array->values[index];
@@ -172,4 +168,16 @@ void *hharray_remove_index(HHArray array, size_t index) {
 
 void *hharray_pop(HHArray array) {
     return hharray_remove_index(array, 0);
+}
+
+void hharray_push(HHArray array, void *value) {
+    hharray_insert_index(array, value, 0);
+}
+
+void hharray_enqueue(HHArray array, void *value) {
+    hharray_append(array, value);
+}
+
+void *hharray_dequeue(HHArray array) {
+    return hharray_pop(array);
 }
