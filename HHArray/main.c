@@ -32,8 +32,8 @@ int is_even(void *a) {
 int main(int argc, const char * argv[]) {
     srand((unsigned int)time(0));
     HHArray array = hharray_create();
-    for (size_t i = 0; i < 10; i++) {
-        hharray_push(array, (void *)(long)(rand() % 100));
+    for (size_t i = 0; i < 100; i++) {
+        hharray_append(array, (void *)(long)(rand() % 100));
     }
     hharray_print_f(array, print);
     hharray_print(array);

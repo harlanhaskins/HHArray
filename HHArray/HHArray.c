@@ -85,7 +85,6 @@ static int hharray_should_shrink(HHArray array) {
 static void hharray_shrink(HHArray array) {
     size_t new_capacity = array->capacity / RESIZE_FACTOR;
     array->values = hhrealloc(array->values, new_capacity * sizeof(void *));
-    printf("Shrinking from %zu to %zu\n", array->capacity, new_capacity);
     array->capacity = new_capacity;
 }
 
@@ -96,7 +95,6 @@ static int hharray_should_grow(HHArray array) {
 static void hharray_grow(HHArray array) {
     size_t new_capacity = array->capacity * RESIZE_FACTOR;
     array->values = hhrealloc(array->values, new_capacity * sizeof(void *));
-    printf("Growing from %zu to %zu\n", array->capacity, new_capacity);
     array->capacity = new_capacity;
 }
 
