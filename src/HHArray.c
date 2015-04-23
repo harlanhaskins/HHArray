@@ -221,6 +221,8 @@ void *hharray_dequeue(HHArray array) {
 #pragma mark - Utilities
 
 void hharray_swap(HHArray array, size_t first_index, size_t second_index) {
+    assert_index(array, array->size - 1, first_index);
+    assert_index(array, array->size - 1, second_index);
     void *first = array->values[first_index];
     void *second = array->values[second_index];
     array->values[first_index] = second;
@@ -228,6 +230,7 @@ void hharray_swap(HHArray array, size_t first_index, size_t second_index) {
 }
 
 void hharray_shuffle(HHArray array) {
+    if (array->size <= 1) return;
     if (array->size == 2) {
         hharray_swap(array, 0, 1);
         return;
@@ -239,12 +242,14 @@ void hharray_shuffle(HHArray array) {
 }
 
 void hharray_reverse(HHArray array) {
+    if (array->size <= 1) return;
     for (size_t i = 0; i < array->size / 2; i++) {
         hharray_swap(array, i, array->size - i - 1);
     }
 }
 
 void hharray_sort(HHArray array, int (*comparison)(const void *a, const void *b)) {
+    if (array->size <= 1) return;
     qsort(array->values, array->size, ITEM_SIZE, comparison);
 }
 
@@ -259,7 +264,6 @@ int hharray_is_sorted(HHArray array, int (*comparison)(const void *a, const void
 }
 
 int equals(void *a, void *b) { return a == b; }
-
 
 void *hharray_remove_f(HHArray array, void *element, int (*comparison)(void *, void *)) {
     size_t index = hharray_find_f(array, element, comparison);
@@ -328,4 +332,3 @@ void **hharray_values(HHArray array) {
     }
     return new;
 }
-
