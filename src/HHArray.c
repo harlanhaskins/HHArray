@@ -153,6 +153,7 @@ void *hharray_get(HHArray array, size_t index) {
 }
 
 void hharray_insert_list(HHArray dest, HHArray source, size_t index) {
+    assert_index(dest, dest->size - 1, index);
     hharray_ensure_capacity(dest, dest->capacity + source->capacity);
     void *old_value_dst = &dest->values[index + source->size];
     void *input_index = &dest->values[index];
@@ -234,6 +235,12 @@ void hharray_shuffle(HHArray array) {
     for (size_t i = array->size - 1; i > 0; --i) {
         size_t swap = rand() / (RAND_MAX / i + 1);
         hharray_swap(array, swap, (int)i);
+    }
+}
+
+void hharray_reverse(HHArray array) {
+    for (size_t i = 0; i < array->size / 2; i++) {
+        hharray_swap(array, i, array->size - i - 1);
     }
 }
 

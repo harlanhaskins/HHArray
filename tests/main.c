@@ -61,6 +61,7 @@ void test_shuffle() {
     putchar('\n');
     hharray_shuffle(array);
     hharray_print_f(array, print);
+    hharray_destroy(array);
 }
 
 void test_map() {
@@ -217,6 +218,20 @@ void test_insert_list() {
     hharray_destroy(dst);
 }
 
+void test_reverse() {
+    printtest("Reverse");
+    HHArray array = hharray_create();
+    fill_array(array, 11);
+    fputs("Original: ", stdout);
+    hharray_print_f(array, print);
+    putchar('\n');
+    hharray_reverse(array);
+    fputs("Reversed: ", stdout);
+    hharray_print_f(array, print);
+    putchar('\n');
+    hharray_destroy(array);
+}
+
 void test_stress() {
     printtest("Stress");
     HHArray array = hharray_create();
@@ -247,6 +262,7 @@ int main() {
     test_remove();
     test_remove_index();
     test_copy();
+    test_reverse();
     test_append_list();
     test_stress();
 

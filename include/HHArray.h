@@ -30,17 +30,60 @@ HHArray hharray_create_capacity(size_t capacity);
  */
 HHArray hharray_create();
 
+/**
+ * Copies the contents of the provided array into a new HHArray.
+ * Modifying the copy will not modify the original, however modifying the values
+ * in the copy will modify the original array.
+ * @param array the array to copy
+ * @return a shallow copy of 'array'
+ */
 HHArray hharray_copy(HHArray array);
 
+/**
+ * Inserts the full contents of an array into an existing array at a given index.
+ * @param dest the destination which will hold the combined values.
+ * @param source the array to insert into `dest`.
+ * @param index the index at which to insert the values.
+ */
 void hharray_insert_list(HHArray dest, HHArray source, size_t index);
 
+/**
+ * Searches the array for the provided value by comparing pointers directly.
+ * @param array the array to search
+ * @param the element to search for
+ * @return The index of `element` in `array`, or `HHArrayNotFound` if
+ *         `element` doesn't exist in `array`.
+ */
 size_t hharray_find(HHArray array, void *element);
 
-size_t hharray_find_f(HHArray array, void *element, int (*comparison)(void *, void *));
+/**
+ * Searches the array for the provided value by comparing values using a comparison function.
+ * @param array the array to search
+ * @param the element to search for
+ * @param is_equal a function used to check equality of two void *'s.
+ * @return The index of `element` in `array`, or `HHArrayNotFound` if
+ *         `element` doesn't exist in `array`.
+ */
+size_t hharray_find_f(HHArray array, void *element, int (*is_equal)(void *, void *));
 
+/**
+ * Removes the provided element from the array by comparing pointers directly.
+ * @param array the array to remove from.
+ * @param element the element to remove.
+ * @note If element does not exist in `array`, the function
+ *       prints an error message and exits with a failure code.
+ */
 void *hharray_remove(HHArray array, void *element);
 
-void *hharray_remove_f(HHArray array, void *element, int (*comparison)(void *, void *));
+/**
+ * Removes the provided element from the array by comparing values using a comparison function.
+ * @param array the array to remove from.
+ * @param element the element to remove.
+ * @param is_equal a function used to check equality of two void *'s.
+ * @note If element does not exist in `array`, the function
+ *       prints an error message and exits with a failure code.
+ */
+void *hharray_remove_f(HHArray array, void *element, int (*is_equal)(void *, void *));
 
 /**
  * Frees an HHArray.
@@ -189,6 +232,11 @@ void hharray_sort(HHArray array, int (*comparison)(const void *a, const void *b)
  * @pre assumes you have seeded the random number generator with `srand()`.
  */
 void hharray_shuffle(HHArray array);
+
+/**
+ * Reverses an array in-place.
+ */
+void hharray_reverse(HHArray array);
 
 /**
  * @return `true` if the array is sorted as per the comparison function.
