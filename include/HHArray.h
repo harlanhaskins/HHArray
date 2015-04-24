@@ -149,6 +149,9 @@ size_t hharray_size(HHArray array);
  */
 void hharray_append(HHArray array, void *value);
 
+/**
+ * Appends each value in `source` at the end of `dest`'s storage.
+ */
 void hharray_append_list(HHArray dest, HHArray source);
 
 /**
@@ -232,6 +235,14 @@ void hharray_sort(HHArray array, int (*comparison)(const void *a, const void *b)
  * @pre assumes you have seeded the random number generator with `srand()`.
  */
 void hharray_shuffle(HHArray array);
+
+/**
+ * Returns a portion of the array's contents, from `start` to `end`, exclusive.
+ * @return a new array with the contents of `array` from `start` to `end`.
+ * @note if `start` or `end` are invalid indices, this function prints an error and exits.
+ * @note if `start > end`, the slice will come back as if walked in reverse-order.
+ */
+HHArray hharray_slice(HHArray array, size_t start, size_t end);
 
 /**
  * Reverses an array in-place.

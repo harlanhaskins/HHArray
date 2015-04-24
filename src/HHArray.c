@@ -43,7 +43,7 @@ static void assert_index(HHArray array, size_t highest, size_t index) {
 
 HHArray hharray_create_capacity(size_t capacity) {
     if (capacity == 0) {
-        fputs("Cannot initialize an hharray with capacity 0.", stderr);
+        fputs("Cannot initialize an hharray with capacity 0.\n", stderr);
         exit(EXIT_FAILURE);
     }
     HHArray array = hhmalloc(sizeof(struct HHArray_S));
@@ -277,6 +277,32 @@ void *hharray_remove_f(HHArray array, void *element, int (*comparison)(void *, v
 
 void *hharray_remove(HHArray array, void *element) {
     return hharray_remove_f(array, element, NULL);
+}
+
+size_t min(size_t a, size_t b) {
+    return a > b ? b : a;
+}
+
+size_t max(size_t a, size_t b) {
+    return a > b ? a : b;
+}
+
+HHArray hharray_slice(HHArray array, size_t first, size_t second) {
+    size_t start = min(first, second);
+    size_t end = max(first, second);
+    assert_index(array, array->size - 1, start);
+    assert_index(array, array->size - 1, end);
+    size_t num_elements = (end - start);
+    size_t new_capacity = max(num_elements / LOAD_THRESHOLD, 1);
+    HHArray new = hharray_create_capacity(new_capacity);
+    void *src = &array->values[start];
+    void *dst = new->values;
+    memcpy(dst, src, num_elements * sizeof(void *));
+    new->size = num_elements;
+    if (first > second) {
+        hharray_reverse(new);
+    }
+    return new;
 }
 
 size_t hharray_find_f(HHArray array, void *element, int (*comparison)(void *, void *)) {

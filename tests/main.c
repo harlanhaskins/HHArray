@@ -15,6 +15,34 @@
 #define CASTREF(Type, x) (*(Type *)x)
 #define printtest(s) fputs("\n\n===== Testing "s" =====\n\n", stdout)
 
+static const int SECONDS_PER_MINUTE = 60;
+static const int SECONDS_PER_HOUR   = SECONDS_PER_MINUTE * 60;
+
+char *formatted_time(double time) {
+    int hours = (time / SECONDS_PER_HOUR);
+    time -= (hours * SECONDS_PER_HOUR);
+    
+    int minutes = (time / SECONDS_PER_MINUTE);
+    time -= (minutes * SECONDS_PER_MINUTE);
+    
+    size_t time_length = 17; // strlen("00:00:00.000000\n")
+    char *time_string = malloc(time_length);
+    
+    snprintf(time_string, time_length, "%02d:%02d:%f", hours, minutes, time);
+    
+    return time_string;
+}
+
+void time_test(void (*test_func)()) {
+    clock_t start = clock();
+    test_func();
+    clock_t end = clock();
+    double elapsed = (double)((end - start) / CLOCKS_PER_SEC);
+    char *elapsed_string = formatted_time(elapsed);
+    printf("\nelapsed time: %s\n", elapsed_string);
+    free(elapsed_string);
+}
+
 void print(void *ptr) {
     printf("%ld", (long)ptr);
 }
@@ -57,9 +85,11 @@ void test_shuffle() {
     printtest("Shuffle");
     HHArray array = hharray_create();
     fill_array(array, 100);
+    fputs("Original: ", stdout);
     hharray_print_f(array, print);
     putchar('\n');
     hharray_shuffle(array);
+    fputs("Shuffled: ", stdout);
     hharray_print_f(array, print);
     hharray_destroy(array);
 }
@@ -68,6 +98,9 @@ void test_map() {
     printtest("Map");
     HHArray array = hharray_create();
     fill_array(array, 100);
+    fputs("Original: ", stdout);
+    hharray_print_f(array, print);
+    putchar('\n');
     HHArray doubled = hharray_map(array, double_ptr);
     fputs("Doubled: ", stdout);
     hharray_print_f(doubled, print);
@@ -79,8 +112,11 @@ void test_filter() {
     printtest("Filter");
     HHArray array = hharray_create();
     fill_array(array, 100);
+    fputs("Full: ", stdout);
+    hharray_print_f(array, print);
+    putchar('\n');
     HHArray evens = hharray_filter(array, is_even);
-    fputs("Even numbers: ", stdout);
+    fputs("Evens: ", stdout);
     hharray_print_f(evens, print);
     hharray_destroy(evens);
     hharray_destroy(array);
@@ -90,7 +126,7 @@ void test_reduce() {
     printtest("Reduce");
     HHArray array = hharray_create();
     fill_array(array, 100);
-    long sum = (long)hharray_reduce(array, NULL, add_long);
+    long sum = (long)hharray_reduce(array, 0, add_long);
     printf("Sum: %ld", sum);
     hharray_destroy(array);
 }
@@ -232,6 +268,21 @@ void test_reverse() {
     hharray_destroy(array);
 }
 
+void test_slice() {
+    printtest("Slice");
+    HHArray array = hharray_create();
+    fill_array(array, 11);
+    fputs("Original: ", stdout);
+    hharray_print_f(array, print);
+    putchar('\n');
+    HHArray sliced = hharray_slice(array, 3, 9);
+    fputs("Sliced: ", stdout);
+    hharray_print_f(sliced, print);
+    putchar('\n');
+    hharray_destroy(array);
+    hharray_destroy(sliced);
+}
+
 void test_stress() {
     printtest("Stress");
     HHArray array = hharray_create();
@@ -249,25 +300,23 @@ void test_stress() {
 
 int main() {
     srand((unsigned int)time(0));
-
-    test_append();
-    test_pointer_print();
-    test_sort();
-    test_shuffle();
-    test_map();
-    test_filter();
-    test_reduce();
-    test_insert();
-    test_insert_list();
-    test_remove();
-    test_remove_index();
-    test_copy();
-    test_reverse();
-    test_append_list();
-    test_stress();
-
+    time_test(test_append);
+    time_test(test_pointer_print);
+    time_test(test_sort);
+    time_test(test_shuffle);
+    time_test(test_map);
+    time_test(test_filter);
+    time_test(test_reduce);
+    time_test(test_insert);
+    time_test(test_insert_list);
+    time_test(test_remove);
+    time_test(test_remove_index);
+    time_test(test_copy);
+    time_test(test_reverse);
+    time_test(test_slice);
+    time_test(test_append_list);
+    time_test(test_stress);
     putchar('\n');
-
     return 0;
 }
 
