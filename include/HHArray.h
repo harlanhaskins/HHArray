@@ -36,6 +36,7 @@ HHArray hharray_create();
  * in the copy will modify the original array.
  * @param array the array to copy
  * @return a shallow copy of 'array'
+ * @note `O(n)`
  */
 HHArray hharray_copy(HHArray array);
 
@@ -44,6 +45,7 @@ HHArray hharray_copy(HHArray array);
  * @param dest the destination which will hold the combined values.
  * @param source the array to insert into `dest`.
  * @param index the index at which to insert the values.
+ * @note `O(n)`
  */
 void hharray_insert_list(HHArray dest, HHArray source, size_t index);
 
@@ -53,6 +55,7 @@ void hharray_insert_list(HHArray dest, HHArray source, size_t index);
  * @param the element to search for
  * @return The index of `element` in `array`, or `HHArrayNotFound` if
  *         `element` doesn't exist in `array`.
+ * @note `O(n)`
  */
 size_t hharray_find(HHArray array, void *element);
 
@@ -63,6 +66,7 @@ size_t hharray_find(HHArray array, void *element);
  * @param is_equal a function used to check equality of two void *'s.
  * @return The index of `element` in `array`, or `HHArrayNotFound` if
  *         `element` doesn't exist in `array`.
+ * @note `O(n)`
  */
 size_t hharray_find_f(HHArray array, void *element, int (*is_equal)(void *, void *));
 
@@ -72,6 +76,7 @@ size_t hharray_find_f(HHArray array, void *element, int (*is_equal)(void *, void
  * @param element the element to remove.
  * @note If element does not exist in `array`, the function
  *       prints an error message and exits with a failure code.
+ * @note `O(n)`
  */
 void *hharray_remove(HHArray array, void *element);
 
@@ -82,6 +87,7 @@ void *hharray_remove(HHArray array, void *element);
  * @param is_equal a function used to check equality of two void *'s.
  * @note If element does not exist in `array`, the function
  *       prints an error message and exits with a failure code.
+ * @note `O(n)`
  */
 void *hharray_remove_f(HHArray array, void *element, int (*is_equal)(void *, void *));
 
@@ -91,6 +97,7 @@ void *hharray_remove_f(HHArray array, void *element, int (*is_equal)(void *, voi
  * in the array. If you need to free the values contained,
  * you can use `hharray_values()` to get a `(void **)` with
  * all the pointers stored in this array.
+ * @note `O(1)`
  */
 void hharray_destroy(HHArray array);
 
@@ -104,6 +111,7 @@ void hharray_destroy(HHArray array);
  *                  elements of the array in order.
  * @return A new HHArray containing the result of applying `transform`
  *         to each value in the provided array.
+ * @note `O(n)`
  */
 HHArray hharray_map(HHArray array, void *(*transform)(void *));
 
@@ -115,7 +123,8 @@ HHArray hharray_map(HHArray array, void *(*transform)(void *));
  * @param include A function that decides whether or not to
  *                include a (void *) in the new array.
  * @return A new HHArray containing only the values from the first
-           array that returned
+ *         array that returned
+ * @note `O(n)`
  */
 HHArray hharray_filter(HHArray array, int (*include)(void *));
 
@@ -127,6 +136,7 @@ HHArray hharray_filter(HHArray array, int (*include)(void *));
  * @param initial An initial value, to start the combination.
  * @param combine A function to combine two `(void *)`s into one.
  * @return A new (void *) containing the final combined value.
+ * @note `O(n)`
  */
 void *hharray_reduce(HHArray array, void *initial, void *(*combine)(void *, void *));
 
@@ -136,21 +146,25 @@ void *hharray_reduce(HHArray array, void *initial, void *(*combine)(void *, void
  * @return A (void **) containing a shallow copy of the values in the array.
  * @note You must free the returned values list from this function.
  * @note You must use `hharray_size()` to find the length of this list.
+ * @note `O(n)`
  */
 void **hharray_values(HHArray array);
 
 /**
  * @return the number of items currently stored in the array.
+ * @note `O(1)`
  */
 size_t hharray_size(HHArray array);
 
 /**
  * Appends the `value` at the end of the array's storage.
+ * @note `O(1)`
  */
 void hharray_append(HHArray array, void *value);
 
 /**
  * Appends each value in `source` at the end of `dest`'s storage.
+ * @note `O(n)` where n is the source lists's size.
  */
 void hharray_append_list(HHArray dest, HHArray source);
 
@@ -158,64 +172,68 @@ void hharray_append_list(HHArray dest, HHArray source);
  * @return the value held at `index` in the array.
  * @note if the array is smaller than the requested index,
  *       HHArray will print an error message and exit.
+ * @note `O(1)`
  */
 void *hharray_get(HHArray array, size_t index);
 
 /**
  * Inserts the provided value at a given index in the array.
- * @note requires an O(n) swap from `index` to the array's size,
-         in order to shift the values.
  * @note if the provided `index` is greater than the array's size,
-         then HHArray will print an error message and exit.
+ *       then HHArray will print an error message and exit.
+ * @note requires an `O(n)` swap from `index` to the array's size,
+ *       in order to shift the values.
  */
 void hharray_insert_index(HHArray array, void *value, size_t index);
 
 /**
  * Removes a value at an index and returns the removed value.
+ * @return the removed value.
  * @note if index is greater than the last index in the array,
  *       HHArray will print an error message and exit.
- * @note requires a reverse O(n) swap from the array's size to `index`,
+ * @note requires a reverse `O(n)` swap from the array's size to `index`,
  *       in order to shift the values.
- * @return the removed value.
  */
 void *hharray_remove_index(HHArray array, size_t index);
 
 /**
  * Removes the first value from the list.
- * @note requires a complete reverse O(n) swap from the array's size,
- *       in order to shift the values.
  * @return the removed value.
+ * @note requires a complete reverse `O(n)` swap from the array's size,
+ *       in order to shift the values.
  */
 void *hharray_pop(HHArray array);
 
 /**
  * Inserts the value at the beginning of the list.
- * @note requires a complete O(n) swap of each existing
+ * @note requires a complete `O(n)` swap of each existing
  *       element in the array in order to shift the values.
  */
 void hharray_push(HHArray array, void *value);
 
 /**
  * Appends the `value` at the end of the array's storage.
+ * @note `O(1)`
  */
 void hharray_enqueue(HHArray array, void *value);
 
 /**
  * Removes the first value from the list.
- * @note requires a complete reverse O(n) swap from the array's size,
- *       in order to shift the values.
  * @return the removed value.
+ * @note requires a complete reverse `O(n)` swap from the array's size,
+ *       in order to shift the values.
  */
 void *hharray_dequeue(HHArray array);
 
 /**
  * Prints the contents of the array using the specified print
  * function on each value.
+ * @note `O(n)`
  */
 void hharray_print_f(HHArray array, void (*print)(void *));
 
 /**
  * Prints the contents of the array by printing each value as a pointer.
+ * @note `O(n)`
  */
 void hharray_print(HHArray array);
 
@@ -227,12 +245,14 @@ void hharray_print(HHArray array);
  *                   less than, equal to, or greater than zero if the
  *                   first argument is considered to be respectively
  *                   less than, equal to, or greater than the second.
+ * @note `O(n * log(n))` on average, `O(n²)` in worst case.
  */
 void hharray_sort(HHArray array, int (*comparison)(const void *a, const void *b));
 
 /**
  * Shuffles the array using a Fischer-Yates shuffle.
  * @pre assumes you have seeded the random number generator with `srand()`.
+ * @note `O(n)`
  */
 void hharray_shuffle(HHArray array);
 
@@ -241,22 +261,25 @@ void hharray_shuffle(HHArray array);
  * @return a new array with the contents of `array` from `start` to `end`.
  * @note if `start` or `end` are invalid indices, this function prints an error and exits.
  * @note if `start > end`, the slice will come back as if walked in reverse-order.
+ * @note `O(n)` where `n` is `abs(end - start)`
  */
 HHArray hharray_slice(HHArray array, size_t start, size_t end);
 
 /**
  * Reverses an array in-place.
+ * @note `O(n/2)`
  */
 void hharray_reverse(HHArray array);
 
 /**
  * @return `true` if the array is sorted as per the comparison function.
- * @note Not functional, so hidden.
+ * @note `O(n)`, but short circuits on finding an unsorted pair.
  */
 int hharray_is_sorted(HHArray array, int (*comparison)(const void *a, const void *b));
 
 /**
  * Swaps the values at the provided indices.
+ * @note `O(1)`
  */
 void hharray_swap(HHArray array, size_t first_index, size_t second_index);
 

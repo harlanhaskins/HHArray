@@ -286,7 +286,7 @@ void test_slice() {
 void test_stress() {
     printtest("Stress");
     HHArray array = hharray_create();
-    fill_array(array, 100000);
+    fill_array(array, 10000);
     while (hharray_size(array) > 70000) {
         size_t index = (size_t)(rand() % hharray_size(array));
         hharray_remove_index(array, index);
