@@ -1,6 +1,6 @@
 CC=clang
 EXENAME=HHArray
-CFLAGS=-Wall -Wno-pointer-arith -Wno-gnu-empty-struct -Ofast -std=gnu99 -Wextra -pedantic -ggdb -march=native -flto -ffast-math
+CFLAGS=-Wall -Wno-pointer-arith -Wno-gnu-empty-struct -Ofast -std=gnu99 -Wextra -pedantic -ggdb -march=native -ffast-math
 INCLUDE= -I./include
 EXECUTABLES=$(EXENAME)
 AR=ar
