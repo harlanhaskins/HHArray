@@ -10,37 +10,37 @@
 #include <stdlib.h>
 #include <time.h>
 #include <assert.h>
+#include <pthread.h>
+
+#define UNIT_TEST (Needed so tests keep running)
 #include "HHArray.h"
+#undef UNIT_TEST
 
 #define CASTREF(Type, x) (*(Type *)x)
-#define printtest(s) fputs("\n\n===== Testing "s" =====\n\n", stdout)
+#define printtest(s) fputs("\n\n===== Testing " s " =====\n\n", stdout)
 
-static const int SECONDS_PER_MINUTE = 60;
-static const int SECONDS_PER_HOUR   = SECONDS_PER_MINUTE * 60;
-
-char *formatted_time(double time) {
-    int hours = (time / SECONDS_PER_HOUR);
-    time -= (hours * SECONDS_PER_HOUR);
-    
-    int minutes = (time / SECONDS_PER_MINUTE);
-    time -= (minutes * SECONDS_PER_MINUTE);
-    
-    size_t time_length = 17; // strlen("00:00:00.000000\n")
-    char *time_string = malloc(time_length);
-    
-    snprintf(time_string, time_length, "%02d:%02d:%f", hours, minutes, time);
-    
-    return time_string;
-}
+#define NSEC_PER_SEC 1e9
+#define NSEC_PER_MILLISEC 1e6
+#define NSEC_PER_MICROSEC 1e3
 
 void time_test(void (*test_func)()) {
     clock_t start = clock();
     test_func();
     clock_t end = clock();
-    double elapsed = (double)((end - start) / CLOCKS_PER_SEC);
-    char *elapsed_string = formatted_time(elapsed);
-    printf("\nelapsed time: %s\n", elapsed_string);
-    free(elapsed_string);
+
+    double elapsed = end - start;
+    char *unit = "ns";
+    if (elapsed > NSEC_PER_SEC) {
+        elapsed /= NSEC_PER_SEC;
+        unit = "s";
+    } else if (elapsed > NSEC_PER_MILLISEC) {
+        elapsed /= NSEC_PER_MILLISEC;
+        unit = "ms";
+    } else if (elapsed > NSEC_PER_MICROSEC) {
+        elapsed /= NSEC_PER_MICROSEC;
+        unit = "μs";
+    }
+    printf("\nelapsed time: %.3f%s\n", elapsed, unit);
 }
 
 void print(void *ptr) {
@@ -74,7 +74,8 @@ void test_sort() {
     HHArray array = hharray_create();
     fill_array(array, 100);
     hharray_print_f(array, print);
-    printf("\n\nSorted? %s\n\n", hharray_is_sorted(array, cmpfunc) ? "yes" : "no");
+    printf("\n\nSorted? %s\n\n",
+           hharray_is_sorted(array, cmpfunc) ? "yes" : "no");
     hharray_sort(array, cmpfunc);
     hharray_print_f(array, print);
     printf("\n\nSorted? %s", hharray_is_sorted(array, cmpfunc) ? "yes" : "no");
@@ -286,7 +287,7 @@ void test_slice() {
 void test_stress() {
     printtest("Stress");
     HHArray array = hharray_create();
-    fill_array(array, 10000);
+    fill_array(array, 100000);
     while (hharray_size(array) > 70000) {
         size_t index = (size_t)(rand() % hharray_size(array));
         hharray_remove_index(array, index);
@@ -296,6 +297,24 @@ void test_stress() {
     }
     hharray_print_f(array, print);
     hharray_destroy(array);
+}
+
+void print_char(void *c) {
+    printf("%c", (char)c);
+}
+
+void test_string() {
+    printtest("String");
+    HHArray string = hharray_create();
+    hharray_append(string, (void *)'c');
+    hharray_append(string, (void *)'h');
+    hharray_append(string, (void *)'a');
+    hharray_append(string, (void *)'r');
+    hharray_append(string, (void *)'t');
+    hharray_append(string, (void *)'s');
+    hharray_append(string, (void *)'\0');
+    hharray_print_f(string, print_char);
+    hharray_destroy(string);
 }
 
 int main() {
@@ -315,8 +334,9 @@ int main() {
     time_test(test_reverse);
     time_test(test_slice);
     time_test(test_append_list);
+    time_test(test_string);
     time_test(test_stress);
     putchar('\n');
+
     return 0;
 }
-

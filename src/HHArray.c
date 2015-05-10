@@ -17,7 +17,7 @@ typedef struct HHArray_S {
     size_t size;
     size_t capacity;
     void **values;
-} *HHArray;
+} * HHArray;
 
 #define _HHARRAY_DEFINED_
 #include "HHArray.h"
@@ -28,6 +28,19 @@ const size_t HHArrayNotFound = SIZE_MAX;
 const double RESIZE_FACTOR = 1.5;
 const double LOAD_THRESHOLD = 0.75;
 
+#ifdef UNIT_TEST
+#define EXIT_WITH_FAILURE exit(EXIT_FAILURE)
+#else
+#define EXIT_WITH_FAILURE
+#endif
+
+size_t min(size_t a, size_t b) {
+    return a > b ? b : a;
+}
+
+size_t max(size_t a, size_t b) {
+    return a > b ? a : b;
+}
 
 /**
  * Asserts that 'index' is less than 'highest', and otherwise causes an error and exits.
@@ -35,8 +48,7 @@ const double LOAD_THRESHOLD = 0.75;
 static void assert_index(HHArray array, size_t highest, size_t index) {
     if (index > highest) {
         fprintf(stderr, "Array index %zu higher than highest index %zu.", index, highest);
-        hharray_destroy(array);
-        exit(EXIT_FAILURE);
+        EXIT_WITH_FAILURE;
     }
 }
 
@@ -45,15 +57,15 @@ static void assert_index(HHArray array, size_t highest, size_t index) {
 HHArray hharray_create_capacity(size_t capacity) {
     if (capacity == 0) {
         fputs("Cannot initialize an hharray with capacity 0.\n", stderr);
-        exit(EXIT_FAILURE);
+        EXIT_WITH_FAILURE;
     }
+    capacity = max(capacity, DEFAULT_CAPACITY);
     HHArray array = hhmalloc(sizeof(struct HHArray_S));
     array->capacity = capacity;
     array->size = 0;
     array->values = hhcalloc(array->capacity, ITEM_SIZE);
     return array;
 }
-
 
 HHArray hharray_create() {
     return hharray_create_capacity(DEFAULT_CAPACITY);
@@ -62,7 +74,7 @@ HHArray hharray_create() {
 HHArray hharray_copy(HHArray array) {
     HHArray new = hharray_create_capacity(array->capacity);
     new->size = array->size;
-    memcpy(new->values, array->values, array->size * ITEM_SIZE);
+    memcpy(new->values, array->values, array->size *ITEM_SIZE);
     return new;
 }
 
@@ -84,7 +96,8 @@ void hharray_print_f(HHArray array, void (*print)(void *)) {
     putchar('[');
     for (size_t i = 0; i < array->size; i++) {
         (print ? print : _print_ptr)(array->values[i]);
-        if (i < array->size - 1) fputs(", ", stdout);
+        if (i < array->size - 1)
+            fputs(", ", stdout);
     }
     putchar(']');
 }
@@ -185,9 +198,6 @@ void hharray_insert_index(HHArray array, void *value, size_t index) {
 }
 
 void *hharray_remove_index(HHArray array, size_t index) {
-    if (hharray_should_shrink(array)) {
-        hharray_shrink(array);
-    }
     void *value = hharray_get(array, index);
     array->values[index] = NULL;
     int is_last = (index == array->size - 1);
@@ -196,6 +206,9 @@ void *hharray_remove_index(HHArray array, size_t index) {
     void *dst = &array->values[index];
     void *src = &array->values[index + 1];
     memmove(dst, src, ((array->size - index) * ITEM_SIZE));
+    if (hharray_should_shrink(array)) {
+        hharray_shrink(array);
+    }
     return value;
 }
 
@@ -264,28 +277,21 @@ int hharray_is_sorted(HHArray array, int (*comparison)(const void *a, const void
     return 1;
 }
 
-int equals(void *a, void *b) { return a == b; }
+int equals(void *a, void *b) {
+    return a == b;
+}
 
 void *hharray_remove_f(HHArray array, void *element, int (*comparison)(void *, void *)) {
     size_t index = hharray_find_f(array, element, comparison);
     if (index == HHArrayNotFound) {
         fprintf(stderr, "Element <%p> not found in array <%p>", element, array);
-        hharray_destroy(array);
-        exit(EXIT_FAILURE);
+        EXIT_WITH_FAILURE;
     }
     return hharray_remove_index(array, index);
 }
 
 void *hharray_remove(HHArray array, void *element) {
     return hharray_remove_f(array, element, NULL);
-}
-
-size_t min(size_t a, size_t b) {
-    return a > b ? b : a;
-}
-
-size_t max(size_t a, size_t b) {
-    return a > b ? a : b;
 }
 
 HHArray hharray_slice(HHArray array, size_t first, size_t second) {
